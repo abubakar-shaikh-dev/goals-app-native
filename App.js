@@ -1,112 +1,130 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
-  Text,
   StyleSheet,
-  SafeAreaView,
-  StatusBar,
   TextInput,
   Pressable,
+  SafeAreaView,
+  Text,
+  StatusBar,
+  FlatList,
   Modal,
   Image,
-  FlatList,
 } from "react-native";
 import { StatusBar as ExpoStatusBar } from "expo-status-bar";
 
 export default function App() {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isModal, setIsModal] = useState(false);
   const [goalInput, setGoalInput] = useState("");
   const [goals, setGoals] = useState([]);
 
-  const handleChange = (enteredText) => {
+  function handleChange(enteredText) {
     setGoalInput(enteredText);
-  };
+  }
 
-  const handleSubmit = () => {
-    if (goalInput) {
-      setGoals((prevGoals) => [...prevGoals, goalInput]);
-      setGoalInput("");
-      setIsModalVisible(false);
-    }
-  };
+  function handleSubmit() {
+    goalInput &&
+      (setGoals((prev) => [...prev, goalInput]),
+      setGoalInput(""),
+      setIsModal(false));
+  }
 
-  const handleDelete = (index) => {
-    setGoals((prevGoals) => prevGoals.filter((_, i) => i !== index));
-  };
+  function handleDelete(index) {
+    setGoals((prev) => prev.filter((item, i) => i !== index));
+  }
 
-  const handleModal = () => {
-    setIsModalVisible(true);
-  };
+  function handleModal() {
+    setIsModal(true);
+  }
 
-  const handleCancel = () => {
-    setIsModalVisible(false);
+  function handleCancel() {
+    setIsModal(false);
     setGoalInput("");
-  };
+  }
 
   return (
     <>
       <ExpoStatusBar style="dark" />
-      <SafeAreaView style={styles.container}>
-        <View style={styles.topContainer}>
-          <Text style={styles.title}>Goals App</Text>
-          <Pressable
-            android_ripple={{ color: "#adbeff" }}
-            style={styles.modalButton}
-            onPress={handleModal}
-          >
-            <Text style={styles.buttonText}>ADD GOAL</Text>
-          </Pressable>
-          <Modal visible={isModalVisible} animationType="slide">
-            <View style={styles.modalContent}>
-              <Image
-                style={styles.image}
-                source={require("./assets/images/goal.png")}
-              />
-              <TextInput
-                style={styles.textInput}
-                placeholder="Write your Goal Here"
-                value={goalInput}
-                onChangeText={handleChange}
-              />
-              <View style={styles.buttonContainer}>
-                <Pressable
-                  android_ripple={{ color: "#adbeff" }}
-                  style={styles.button}
-                  onPress={handleSubmit}
-                >
-                  <Text style={styles.buttonText}>ADD</Text>
-                </Pressable>
-                <Pressable
-                  android_ripple={{ color: "#adbeff" }}
-                  style={styles.button}
-                  onPress={handleCancel}
-                >
-                  <Text style={styles.buttonText}>CANCEL</Text>
-                </Pressable>
-              </View>
-            </View>
-          </Modal>
-        </View>
-        <View style={styles.bottomContainer}>
-          {goals.length !== 0 ? (
-            <FlatList
-              data={goals}
-              renderItem={({ item, index }) => (
-                <Pressable
-                  android_ripple={{ color: "#a7b0fc" }}
-                  style={styles.task}
-                  onPress={() => handleDelete(index)}
-                >
-                  <Text style={styles.taskText}>{item}</Text>
-                </Pressable>
-              )}
-              keyExtractor={(_, index) => index.toString()}
-            />
-          ) : (
+      <SafeAreaView
+        style={{
+          flex: 1,
+          backgroundColor: "#ebeefc",
+          paddingTop: StatusBar.currentHeight,
+        }}
+      >
+        <View style={styles.container}>
+          {/* Top Container Start */}
+          <View style={styles.topContainer}>
             <View>
-              <Text style={styles.title}>No Goals</Text>
+              <Text style={styles.title}>Goals App</Text>
             </View>
-          )}
+            <View>
+              <Pressable
+                android_ripple={{ color: "#adbeff" }}
+                style={styles.ModalButton}
+                onPress={handleModal}
+              >
+                <Text style={styles.buttonText}>ADD GOAL</Text>
+              </Pressable>
+            </View>
+            <Modal visible={isModal} animationType="slide">
+              <View style={styles.form}>
+                <Image
+                  style={styles.image}
+                  source={require("./assets/images/goal.png")}
+                />
+                <TextInput
+                  style={styles.textInput}
+                  placeholder="Write your Goal Here"
+                  value={goalInput}
+                  onChangeText={handleChange}
+                />
+                <View style={styles.buttonContainer}>
+                  <Pressable
+                    android_ripple={{ color: "#adbeff" }}
+                    style={styles.button}
+                    onPress={handleSubmit}
+                  >
+                    <Text style={styles.buttonText}>ADD</Text>
+                  </Pressable>
+                  <Pressable
+                    android_ripple={{ color: "#adbeff" }}
+                    style={styles.button}
+                    onPress={handleCancel}
+                  >
+                    <Text style={styles.buttonText}>CANCEL</Text>
+                  </Pressable>
+                </View>
+              </View>
+            </Modal>
+          </View>
+          {/* Top Container End */}
+
+          {/* Bottom Container Start*/}
+          <View style={styles.bottomContainer}>
+            {goals.length != 0 ? (
+              <FlatList
+                data={goals}
+                renderItem={(itemData) => {
+                  return (
+                    <Pressable
+                      android_ripple={{ color: "#a7b0fc" }}
+                      style={styles.task}
+                      onPress={() => handleDelete(itemData.index)}
+                    >
+                      <Text style={styles.taskText}>{itemData.item}</Text>
+                    </Pressable>
+                  );
+                }}
+                keyExtractor={(item, index) => index}
+              />
+            ) : (
+              <View>
+                <Text style={styles.title}>No Goals</Text>
+              </View>
+            )}
+          </View>
+          {/* Bottom Container End*/}
         </View>
       </SafeAreaView>
     </>
@@ -116,28 +134,26 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ebeefc",
-    paddingTop: StatusBar.currentHeight,
+    backgroundColor: "#f2f2f2",
   },
   topContainer: {
     padding: 30,
+    gap: 25,
     backgroundColor: "#ebeefc",
     borderBottomRightRadius: 20,
     borderBottomLeftRadius: 20,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   title: {
     color: "#2e2e2e",
     fontSize: 30,
     fontWeight: "600",
   },
-  modalContent: {
+  form: {
     flex: 1,
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
+    gap: 16,
     padding: 30,
     backgroundColor: "#ebeefc",
   },
@@ -159,7 +175,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  modalButton: {
+  ModalButton: {
     width: "100%",
     backgroundColor: "#7993fc",
     height: 50,
